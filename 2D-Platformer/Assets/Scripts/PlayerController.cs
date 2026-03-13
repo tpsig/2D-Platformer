@@ -1,32 +1,20 @@
 using UnityEngine;
-using TMPro;
-using UnityEngine.SceneManagement;
 
-public class PlayerController : MonoBehaviour
-{
-    public float moveSpeed = 5f;
-    public float jumpForce = 12f;
-
-    public TextMeshProUGUI healthText;
-    public TextMeshProUGUI scoreText;
+public class PlayerController : MonoBehaviour {
+    public float moveSpeed = 30f;
+    public float jumpForce = 85f;
 
     private Rigidbody2D rb;
     private bool isGrounded = false;
 
-    private int health = 100;
-    private int score = 0;
-
     void Start() {
         rb = GetComponent<Rigidbody2D>();
-        UpdateUI();
     }
 
     void Update() {
-        // Horizontal movement
         float moveInput = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
-        // Jumping
         if (Input.GetButtonDown("Jump") && isGrounded) {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
@@ -38,12 +26,8 @@ public class PlayerController : MonoBehaviour
         }
 
         if (collision.gameObject.CompareTag("Enemy")) {
-            health -= 10;
-            UpdateUI();
-
-            if (health <= 0) {
-                GameOver();
-            }
+            Debug.Log("Player hit by enemy!");
+            GameManager.Instance.TakeDamage(10);
         }
     }
 
@@ -54,24 +38,10 @@ public class PlayerController : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D other) {
-        // Coin collection
         if (other.CompareTag("Coin")) {
-            score += 10;
+            Debug.Log("Coin collected!");
+            GameManager.Instance.AddScore(10);
             Destroy(other.gameObject);
-            UpdateUI();
         }
-    }
-
-    void UpdateUI() {
-        healthText.text = "Health: " + health;
-        scoreText.text = "Score: " + score;
-    }
-    
-    void GameOver() {
-        // Save score for next scene
-        PlayerPrefs.SetInt("FinalScore", score);
-
-        // Load GameOver scene
-        SceneManager.LoadScene("GameOver");
     }
 }

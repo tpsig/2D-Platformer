@@ -5,7 +5,7 @@ public class EnemyPatrol : MonoBehaviour {
     public float patrolDistance = 3f;
 
     private Vector3 startPosition;
-    private int direction = 1; // 1 = right, -1 = left
+    private int direction = 1;
 
     void Start() {
         // Save starting position
