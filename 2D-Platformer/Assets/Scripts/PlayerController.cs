@@ -37,11 +37,28 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other) {
-        if (other.CompareTag("Coin")) {
-            Debug.Log("Coin collected!");
-            GameManager.Instance.AddScore(10);
-            Destroy(other.gameObject);
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Coin"))
+        {
+            Debug.Log("Pool Instance = " + CoinPoolManager.Instance);
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.AddScore(10);
+            }
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySoundEffect(AudioManager.Instance.coinSound);
+            }
+
+            if (CoinPoolManager.Instance != null)
+            {
+                CoinPoolManager.Instance.CollectCoin(other.gameObject);
+                Debug.Log("Coin collected!");
+
+            }
+
         }
     }
 }
