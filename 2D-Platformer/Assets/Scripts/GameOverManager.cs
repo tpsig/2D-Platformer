@@ -1,26 +1,62 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class GameOverManager : MonoBehaviour
-{
+public class GameOverManager : MonoBehaviour {
     public TextMeshProUGUI finalScoreText;
+    public TMP_InputField playerNameInput;
+
+    public Button retryButton;
+    public TextMeshProUGUI retryButtonText;
+    public Button backToMenuButton;
 
     void Start() {
-        if (GameManager.Instance != null)
-        {
-            // Display the final score from GameManager
-            finalScoreText.text = "Final Score: " + GameManager.Instance.CurrentScore;
-            Debug.Log("GameOverManager: Final Score displayed: " + GameManager.Instance.CurrentScore);
+        if (GameManager.Instance == null) {
+            Debug.LogError("GameManager missing!");
+            return;
+        }
+
+        int finalScore = GameManager.Instance.CurrentScore;
+        finalScoreText.text = "Final Score: " + finalScore;
+
+        Debug.Log("Final Score displayed: " + finalScore);
+
+        retryButton.gameObject.SetActive(true);
+        backToMenuButton.gameObject.SetActive(true);
+
+        if (finalScore >= 100) {
+            retryButtonText.text = "Play Again";
+        }
+        else {
+            retryButtonText.text = "Try Again";
         }
     }
 
-    public void TryAgain() {
-        if (GameManager.Instance != null) {
-            GameManager.Instance.ResetGame();
+    public void OnSubmitScore() {
+        if (GameManager.Instance == null || DatabaseManager.Instance == null) {
+            Debug.LogError("Missing GameManager or DatabaseManager!");
+            return;
         }
 
-        Debug.Log("GameOverManager: Restarting game...");
+        string playerName = string.IsNullOrEmpty(playerNameInput.text) ? "Anonymous" : playerNameInput.text;
+        int finalScore = GameManager.Instance.CurrentScore;
+        float completionTime = Time.timeSinceLevelLoad;
+
+        DatabaseManager.Instance.SaveHighScore(playerName, finalScore, completionTime);
+        Debug.Log("Score submitted!");
+    }
+
+    public void TryAgain() {
+        OnSubmitScore();
+        GameManager.Instance.ResetGame();
         SceneManager.LoadScene("GameScene");
+        Debug.Log("Game restarting...");
+    }
+
+    public void BackToMenu() {
+        OnSubmitScore();
+        SceneManager.LoadScene("MainMenu");
+        Debug.Log("Returning to main menu...");
     }
 }
